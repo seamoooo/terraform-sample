@@ -1,0 +1,21 @@
+# Terraform
+.terraform/
+*.tfstate
+*.tfstate.backup
+*.tfplan
+.terraform.lock.hcl
+crash.log
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+
+# 変数ファイル（シークレットを含むため）
+terraform.tfvars
+*.auto.tfvars
+
+# スクリプト生成ファイル
+destination_response.json
+
+# OS
+.DS_Store

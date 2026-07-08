@@ -1,0 +1,10 @@
+# New Relic 認証情報
+newrelic_account_id = "YOUR_ACCOUNT_ID"
+newrelic_api_key    = "NRAK-XXXXXXXXXXXXXXXXXXXXXXXXX"
+newrelic_region     = "US"
+
+# Slack Bot Token (Secrets Manager に sre_slack_token として登録される)
+slack_token = "xoxb-XXXXXXXXXXXXXXXXXXXXXXXXX"
+
+# 監視対象アプリケーション名
+app_name = "my-application"

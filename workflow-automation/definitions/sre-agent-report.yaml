@@ -1,0 +1,62 @@
+name: sre-agent-report-to-slack
+description: ''
+workflowInputs:
+  account_id:
+    type: Int
+    validations: []
+    required: false
+  IssueId:
+    type: String
+    validations: []
+    required: false
+  applicationId:
+    type: List
+    validations: []
+    required: false
+steps:
+  - name: log_inputs
+    type: action
+    action: newrelic.ingest.sendLogs
+    version: "1"
+    inputs:
+      logs:
+        - message: "[Workflow Automation] Alert triggered - inputs received"
+          attributes:
+            logtype: workflow-automation-debug
+            workflow_name: sre-agent-report-to-slack
+            input_account_id: "${{ .workflowInputs.account_id }}"
+            input_issue_id: "${{ .workflowInputs.IssueId }}"
+            input_application_id: "${{ .workflowInputs.applicationId }}"
+  - name: newrelic_agent_run
+    type: action
+    action: newrelic.agent.run
+    version: 1
+    inputs:
+      prompt: |-
+        アラートをキャッチしました。原因を調査して分析したレポートを日本語で作成してください
+        account_id : ${{.workflowInputs.account_id}}
+        IssueId : ${{.workflowInputs.IssueId}}
+        applicationId : ${{ .workflowInputs.applicationId}}
+      agentId: sre_agent
+  - name: log_agent_response
+    type: action
+    action: newrelic.ingest.sendLogs
+    version: "1"
+    inputs:
+      logs:
+        - message: "[Workflow Automation] SRE Agent response received"
+          attributes:
+            logtype: workflow-automation-debug
+            workflow_name: sre-agent-report-to-slack
+            agent_response: "${{ .steps.newrelic_agent_run.outputs.response.finalAnswer }}"
+  - name: slack_chat_postMessage
+    type: action
+    action: slack.chat.postMessage
+    version: 1
+    inputs:
+      token: ${{ :secrets:slack:sre_slack_token }}
+      channel: general
+      text: >-
+        ${{ .steps.newrelic_agent_run.outputs.response.finalAnswer | fromjson
+        | [.card.body[] | select(.type == "Text") | .value] | join("\n\n") }}
+    next: end
