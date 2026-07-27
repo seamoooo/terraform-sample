@@ -1,0 +1,19 @@
+# New Relic 認証情報
+newrelic_account_id = "YOUR_PARENT_ACCOUNT_ID"
+newrelic_api_key    = "NRAK-XXXXXXXXXXXXXXXXXXXXXXXXX"
+newrelic_region     = "US"
+
+# 作成するサブアカウント名
+account_name = "my-new-account"
+
+# 認証ドメイン名（New Relic UI の "Authentication domains" で確認可能）
+authentication_domain_name = "Default"
+
+# ユーザーを追加する既存グループの名前
+group_name = "Admin"
+
+# グループに追加する既存ユーザーのメールアドレス
+group_user_emails = [
+  "user1@example.com",
+  "user2@example.com"
+]
