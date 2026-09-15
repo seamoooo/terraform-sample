@@ -93,17 +93,16 @@ terraform apply
 |-----------|--------|-----|------|
 | `account_id` | `{{ nrAccountId }}` | Int | New Relic アカウント ID |
 | `IssueId` | `{{ issueId }}` | String | アラート Issue ID |
-| `applicationId` | `{{ entitiesData.ids }}` | List | 影響を受けたエンティティ ID のリスト |
+| `entityGuid` | `{{#each entitiesData.ids}}{{this}}{{#unless @last}}, {{/unless}}{{/each}}` | String | 影響を受けたエンティティ GUID（カンマ区切り） |
 
 ### ワークフローステップ
 
-1. **log_inputs** - 受信したパラメータを New Relic Logs に記録（デバッグ用）
-2. **newrelic_agent_run** - SRE Agent にパラメータを渡して原因調査を実行
-3. **slack_chat_postMessage** - SRE Agent のレポートを Slack チャンネル `#sre-agent` に投稿
+1. **newrelic_agent_run** - SRE Agent にパラメータを渡して原因調査を実行
+2. **slack_chat_postMessage_4** - SRE Agent のレポートを Slack チャンネル `#perfect-cat-streaming` に投稿
 
 ### Secrets
 
-Slack Token は New Relic Secrets Manager に `sre_slack_token` として格納され、YAML 内で `${{ :secrets:workflow_automation:sre_slack_token }}` として参照されます。
+Slack Token は New Relic Secrets Manager に `sre_slack_token` として格納され、YAML 内で `${{ :secrets:slack:sre_slack_token }}` として参照されます。
 
 ## デバッグ
 

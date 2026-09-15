@@ -146,9 +146,9 @@ resource "newrelic_notification_channel" "workflow_automation" {
   }
 
   property {
-    key   = "applicationId"
-    value = "{{ entitiesData.ids }}"
-    label = "ApplicationId"
+    key   = "entityGuid"
+    value = "{{#each entitiesData.ids}}{{this}}{{#unless @last}}, {{/unless}}{{/each}}"
+    label = "EntityGuid"
   }
 
   property {
