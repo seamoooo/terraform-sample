@@ -33,6 +33,5 @@ steps:
       token: ${{ :secrets:slack:sre_slack_token }}
       channel: perfect-cat-streaming
       text: >-
-        ${{ .steps.newrelic_agent_run.outputs.response.finalAnswer | fromjson
-        | [.card.body[] | select(.type == "Text") | .value] | join("\n\n") }}
+        ${{ .steps.newrelic_agent_run.outputs.response.finalAnswer | fromjson | [.card.body[] | .value | select(type == "string") | gsub("\\[(?<text>[^\\]]+)\\]\\((?<url>[^\\)]+)\\)"; "<\(.url)|\(.text)>") | gsub("#\\*[■ ]*[ *]*(?<title>[^*:\n]+)[ *]*"; "\n*■ \(.title)*") | gsub("## (?<title>[^\n]+)"; "*■ \(.title)*") | gsub("### (?<title>[^\n]+)"; "*• \(.title)*") | gsub("^[ \t]*- "; "• ") | gsub("\n[ \t]*- "; "\n• ") | gsub("\\*\\*(?<bold>[^*]+)\\*\\*"; "*\(.bold)*")] | join("\n\n") }}
     next: end
