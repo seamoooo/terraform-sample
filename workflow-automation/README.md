@@ -74,6 +74,7 @@ newrelic_account_id = "YOUR_ACCOUNT_ID"
 newrelic_api_key    = "NRAK-XXXXXXXXXXXXXXXXXXXXXXXXX"
 newrelic_region     = "US"
 slack_token         = "xoxb-XXXXXXXXXXXXXXXXXXXXXXXXX"
+slack_channel       = "your-slack-channel"
 app_name            = "my-application"
 ```
 
@@ -98,11 +99,15 @@ terraform apply
 ### ワークフローステップ
 
 1. **newrelic_agent_run** - SRE Agent にパラメータを渡して原因調査を実行
-2. **slack_chat_postMessage_4** - SRE Agent のレポートを Slack チャンネル `#perfect-cat-streaming` に投稿
+2. **slack_chat_postMessage_4** - SRE Agent のレポートを `slack_channel` 変数で指定した Slack チャンネルに投稿
 
 ### Secrets
 
 Slack Token は New Relic Secrets Manager に `sre_slack_token` として格納され、YAML 内で `${{ :secrets:slack:sre_slack_token }}` として参照されます。
+
+### 投稿先チャンネル
+
+YAML 内の `channel` はプレースホルダ `__SLACK_CHANNEL__` になっており、`main.tf` の `replace()` で `slack_channel` 変数の値に差し替えてから登録されます。YAML に含まれる `${{ }}` が Terraform の補間構文と衝突するため、`templatefile()` は使用していません。
 
 ## デバッグ
 

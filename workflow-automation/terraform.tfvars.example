@@ -6,5 +6,8 @@ newrelic_region     = "US"
 # Slack Bot Token (Secrets Manager に sre_slack_token として登録される)
 slack_token = "xoxb-XXXXXXXXXXXXXXXXXXXXXXXXX"
 
+# レポートの投稿先 Slack チャンネル名（先頭の # は不要）
+slack_channel = "your-slack-channel"
+
 # 監視対象アプリケーション名
 app_name = "my-application"

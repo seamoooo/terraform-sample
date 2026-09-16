@@ -46,7 +46,13 @@ resource "newrelic_workflow_automation" "sre_agent_report" {
   scope_id   = var.newrelic_account_id
   scope_type = "ACCOUNT"
 
-  definition = file("${path.module}/definitions/sre-agent-report.yaml")
+  # YAML 内の __SLACK_CHANNEL__ を投稿先チャンネル名に差し替える
+  # （YAML に含まれる ${{ }} が Terraform の補間と衝突するため templatefile は使わない）
+  definition = replace(
+    file("${path.module}/definitions/sre-agent-report.yaml"),
+    "__SLACK_CHANNEL__",
+    var.slack_channel
+  )
 
   depends_on = [terraform_data.sre_slack_token_secret]
 }

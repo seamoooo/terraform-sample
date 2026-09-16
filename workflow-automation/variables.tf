@@ -21,6 +21,11 @@ variable "slack_token" {
   sensitive   = true
 }
 
+variable "slack_channel" {
+  description = "レポートの投稿先 Slack チャンネル名（先頭の # は不要）"
+  type        = string
+}
+
 variable "app_name" {
   description = "監視対象アプリケーション名"
   type        = string
