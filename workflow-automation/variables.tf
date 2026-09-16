@@ -16,9 +16,21 @@ variable "newrelic_region" {
 }
 
 variable "slack_token" {
-  description = "Slack Bot Token (xoxb-...) - Secrets Manager に sre_slack_token として登録される"
+  description = "Slack Bot Token (xoxb-...) - New Relic Secrets Management に登録される"
   type        = string
   sensitive   = true
+}
+
+variable "slack_secret_namespace" {
+  description = "Slack トークンを登録する Secrets Management の namespace"
+  type        = string
+  default     = "slack"
+}
+
+variable "slack_secret_key" {
+  description = "Slack トークンを登録する Secrets Management の key"
+  type        = string
+  default     = "sre_slack_token"
 }
 
 variable "slack_channel" {

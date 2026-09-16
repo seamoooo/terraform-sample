@@ -30,7 +30,7 @@ steps:
     action: slack.chat.postMessage
     version: 1
     inputs:
-      token: ${{ :secrets:slack:sre_slack_token }}
+      token: "${{ :secrets:__SECRET_NAMESPACE__:__SECRET_KEY__ }}"
       channel: __SLACK_CHANNEL__
       text: >-
         ${{ .steps.newrelic_agent_run.outputs.response.finalAnswer | fromjson | [.card.body[] | .value | select(type == "string") | gsub("\\[(?<text>[^\\]]+)\\]\\((?<url>[^\\)]+)\\)"; "<\(.url)|\(.text)>") | gsub("#\\*[■ ]*[ *]*(?<title>[^*:\n]+)[ *]*"; "\n*■ \(.title)*") | gsub("## (?<title>[^\n]+)"; "*■ \(.title)*") | gsub("### (?<title>[^\n]+)"; "*• \(.title)*") | gsub("^[ \t]*- "; "• ") | gsub("\n[ \t]*- "; "\n• ") | gsub("\\*\\*(?<bold>[^*]+)\\*\\*"; "*\(.bold)*")] | join("\n\n") }}

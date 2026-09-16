@@ -37,7 +37,8 @@ workflow-automation/
 ├── terraform.tfvars.example                   # 変数ファイルサンプル
 ├── .gitignore
 ├── scripts/
-│   └── get-or-create-destination.sh           # Destination ID 取得スクリプト（冪等）
+│   ├── get-or-create-destination.sh           # Destination ID 取得スクリプト（冪等）
+│   └── register-secret.sh                     # Secrets Management への登録スクリプト（冪等）
 └── definitions/
     └── sre-agent-report.yaml                  # Workflow Automation YAML 定義
 ```
@@ -103,7 +104,18 @@ terraform apply
 
 ### Secrets
 
-Slack Token は New Relic Secrets Manager に `sre_slack_token` として格納され、YAML 内で `${{ :secrets:slack:sre_slack_token }}` として参照されます。
+Slack Token は平文で YAML に書かず、New Relic Secrets Management に登録して参照します。
+
+- 登録は `scripts/register-secret.sh` が NerdGraph 経由で行います（`terraform apply` 時に自動実行）
+  - 未登録の場合: `secretsManagementCreateSecret`
+  - 既に同じ namespace / key がある場合: `secretsManagementUpdateSecret`（新しいバージョンが作成される）
+  - トークン・namespace・key のいずれかを変更すると再登録されます
+  - 値は環境変数でスクリプトに渡すため、コマンドライン引数として見えません
+- YAML からは `${{ :secrets:<namespace>:<key> }}` の形式で参照します
+  - 既定では `${{ :secrets:slack:sre_slack_token }}`
+  - namespace / key は `slack_secret_namespace` / `slack_secret_key` 変数で変更できます
+
+不要になったシークレットの削除は `secretsManagementDeleteSecret`（`purge: false` で論理削除）を使用してください。
 
 ### 投稿先チャンネル
 

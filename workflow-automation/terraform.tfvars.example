@@ -3,8 +3,12 @@ newrelic_account_id = "YOUR_ACCOUNT_ID"
 newrelic_api_key    = "NRAK-XXXXXXXXXXXXXXXXXXXXXXXXX"
 newrelic_region     = "US"
 
-# Slack Bot Token (Secrets Manager に sre_slack_token として登録される)
+# Slack Bot Token (New Relic Secrets Management に登録される)
 slack_token = "xoxb-XXXXXXXXXXXXXXXXXXXXXXXXX"
+
+# シークレットの namespace / key（省略時は slack / sre_slack_token）
+# slack_secret_namespace = "slack"
+# slack_secret_key       = "sre_slack_token"
 
 # レポートの投稿先 Slack チャンネル名（先頭の # は不要）
 slack_channel = "your-slack-channel"

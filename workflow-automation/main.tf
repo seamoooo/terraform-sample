@@ -13,28 +13,29 @@ provider "newrelic" {
 # -----------------------------------------------------------------------------
 # Secret: sre_slack_token
 # -----------------------------------------------------------------------------
-# NerdGraph API を使用して Workflow Automation の Secrets Manager に
-# Slack トークンを登録する
+# New Relic Secrets Management にトークンを登録する。
+# 既に同じ namespace / key が存在する場合はスクリプト側で更新する。
+# 値は環境変数でスクリプトに渡す（コマンドライン引数は ps などから見えるため）。
 resource "terraform_data" "sre_slack_token_secret" {
-  input = var.slack_token
+  # トークン・namespace・key のいずれかが変わったら再登録する
+  triggers_replace = [
+    var.slack_token,
+    var.slack_secret_namespace,
+    var.slack_secret_key,
+  ]
 
   provisioner "local-exec" {
-    command = <<-EOT
-      curl -s -X POST https://api.newrelic.com/graphql \
-        -H "Content-Type: application/json" \
-        -H "API-Key: ${var.newrelic_api_key}" \
-        -d '{
-          "query": "mutation { secretsManagementCreateSecret(scope: {type: ACCOUNT, id: \"${var.newrelic_account_id}\"}, namespace: \"slack\", key: \"sre_slack_token\", description: \"Slack token for SRE agent report workflow\", value: \"${var.slack_token}\") { key } }"
-        }'
-    EOT
-  }
+    command = "${path.module}/scripts/register-secret.sh"
 
-  # トークンが変更された場合に再登録する
-  provisioner "local-exec" {
-    when    = destroy
-    command = <<-EOT
-      echo "Note: Secret 'sre_slack_token' should be manually removed from New Relic Secrets Manager if no longer needed."
-    EOT
+    environment = {
+      NR_ACCOUNT_ID      = var.newrelic_account_id
+      NR_API_KEY         = var.newrelic_api_key
+      NR_REGION          = var.newrelic_region
+      SECRET_NAMESPACE   = var.slack_secret_namespace
+      SECRET_KEY         = var.slack_secret_key
+      SECRET_VALUE       = var.slack_token
+      SECRET_DESCRIPTION = "Slack token for SRE agent report workflow"
+    }
   }
 }
 
@@ -46,12 +47,17 @@ resource "newrelic_workflow_automation" "sre_agent_report" {
   scope_id   = var.newrelic_account_id
   scope_type = "ACCOUNT"
 
-  # YAML 内の __SLACK_CHANNEL__ を投稿先チャンネル名に差し替える
+  # YAML 内のプレースホルダを変数の値に差し替える
   # （YAML に含まれる ${{ }} が Terraform の補間と衝突するため templatefile は使わない）
   definition = replace(
-    file("${path.module}/definitions/sre-agent-report.yaml"),
-    "__SLACK_CHANNEL__",
-    var.slack_channel
+    replace(
+      replace(
+        file("${path.module}/definitions/sre-agent-report.yaml"),
+        "__SLACK_CHANNEL__", var.slack_channel
+      ),
+      "__SECRET_NAMESPACE__", var.slack_secret_namespace
+    ),
+    "__SECRET_KEY__", var.slack_secret_key
   )
 
   depends_on = [terraform_data.sre_slack_token_secret]
